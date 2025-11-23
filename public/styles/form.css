@@ -1,0 +1,19 @@
+.form {
+  display: flex;
+  justify-content: center;
+  background-color: green;
+  min-height: 200px;
+}
+.extract-data-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: blue;
+  min-height: 200px;
+}
+.btn {
+  border: none;
+  height: 20px;
+  cursor: pointer;
+  margin: 1rem;
+}
