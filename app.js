@@ -15,12 +15,19 @@ const upload = require("./middlewares/upload");
 //------------------------------------------
 //-------------serve form using : "/" get -----------
 app.get("/", (req, res) => {
-  res.render("form");
+  res.render("saveForm");
 });
 //------------storing file using multer in uploads/documents directory----------------
 app.post("/storeFile", upload.single("document"), (req, res) => {
   console.log(req.file);
   res.redirect("/");
+});
+
+//---------------extract data from saved file such as name, dob, age etc-------------
+app.post("/extractData/:id", (req, res) => {
+  const { id } = req.params;
+  console.log(id);
+  console.log("data extracted");
 });
 
 //------------------------listen route--------------------
