@@ -1,9 +1,10 @@
 const express = require("express");
 const app = express();
 const port = 3000;
+
 //utils-------------------------------------
-const getUploadedFiles = require("./utils/getUploadedFiles");
-//css
+const getUploadedFiles = require("./public/utils/getUploadedFiles");
+const { extractText } = require("./public//utils/tesseract");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 // Set EJS as the view engine
@@ -24,7 +25,7 @@ app.get("/saveForm", (req, res) => {
 //------------store file using multer in uploads/documents directory----------------
 app.post("/saveForm", upload.single("document"), (req, res) => {
   console.log(req.file);
-  res.redirect("/");
+  res.render("saveForm");
 });
 //------------get page to extract data ------------
 app.get("/extractData", (req, res) => {
@@ -32,10 +33,21 @@ app.get("/extractData", (req, res) => {
   res.render("extractDocs", { allFiles });
 });
 //---------------tesseract extract data from saved file such as name, dob, age etc-------------
-app.post("/extractData/:id", (req, res) => {
+app.post("/extractData/:id", async (req, res) => {
   const { id } = req.params;
-  console.log(id);
-  console.log("data extracted");
+  const filePath = `uploads/documents/${id}`;
+  try {
+    const text = await extractText(filePath);
+    console.log(text);
+    res.send({
+      file: id,
+      extractedText: text,
+    });
+  } catch (err) {
+    res.status(500).send({
+      error: err.message,
+    });
+  }
 });
 
 //------------------------listen route--------------------

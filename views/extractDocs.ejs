@@ -8,12 +8,16 @@
   <body>
     <%- include("navbar") %>
     <div>
-      <select name="" id="">
-        <option value="" selected>Choose a document</option>
-        <% for(file of allFiles) {%>
-        <option value=""><%=file%></option>
-        <% } %>
-      </select>
+      <form id="fileForm" method="post">
+        <select name="fileName" id="fileSelect">
+          <option value="" selected>Choose a document</option>
+          <% for(file of allFiles) {%>
+          <option value="<%=file%>"><%=file%></option>
+          <% } %>
+        </select>
+        <button>Extract</button>
+      </form>
     </div>
+    <script src="/utils/extractFormSubmit.js"></script>
   </body>
 </html>
