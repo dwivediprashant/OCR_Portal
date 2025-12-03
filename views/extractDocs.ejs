@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>All documnets</title>
+    <title>All documents</title>
   </head>
   <body>
     <%- include("navbar") %>
     <div>
-      <form id="fileForm" method="post">
+      <form id="fileForm" method="get">
         <select name="fileName" id="fileSelect">
           <option value="" selected>Choose a document</option>
           <% for(file of allFiles) {%>

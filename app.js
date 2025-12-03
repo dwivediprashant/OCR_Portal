@@ -33,16 +33,12 @@ app.get("/extractData", (req, res) => {
   res.render("extractDocs", { allFiles });
 });
 //---------------tesseract extract data from saved file such as name, dob, age etc-------------
-app.post("/extractData/:id", async (req, res) => {
+app.get("/extractData/:id", async (req, res) => {
   const { id } = req.params;
   const filePath = `uploads/documents/${id}`;
   try {
     const text = await extractText(filePath);
-    console.log(text);
-    res.send({
-      file: id,
-      extractedText: text,
-    });
+    res.render("showExtractedData", { id, text });
   } catch (err) {
     res.status(500).send({
       error: err.message,
