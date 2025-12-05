@@ -1,14 +1,8 @@
-.form {
+.extract-form {
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: rgb(220, 243, 252);
   min-height: 330px;
   margin-top: 2rem;
-}
-button {
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  padding: 0.5rem;
 }

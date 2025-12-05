@@ -1,6 +1,12 @@
 .navbar {
-  background-color: orange;
+  display: flex;
+  align-items: center;
+  background-color: blue;
+  height: 4rem;
 }
 .navbar span {
   margin: 1rem;
+}
+a {
+  text-decoration: none;
 }

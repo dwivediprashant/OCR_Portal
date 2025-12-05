@@ -3,13 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/extractdata.css" />
     <title>Document</title>
   </head>
   <body>
     <%-include("navbar")%>
-    <div>
-      <p>Filee name : <%= id %></p>
-      <p>Data :<%= text %></p>
+    <div class="extract-data">
+      <p>File name : <span><%= id %></span></p>
+      <p>Data : <span><%= text %></span></p>
     </div>
+    <%-include("footer")%>
   </body>
 </html>

@@ -1,0 +1,15 @@
+.home {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: rgb(220, 243, 252);
+  margin-top: 2rem;
+  padding: 1rem;
+  min-height: 300px;
+}
+.home div {
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 1rem;
+  background-color: white;
+}

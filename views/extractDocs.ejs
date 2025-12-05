@@ -3,11 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/extractForm.css" />
     <title>All documents</title>
   </head>
   <body>
     <%- include("navbar") %>
-    <div>
+    <div class="extract-form">
       <form id="fileForm" method="get">
         <select name="fileName" id="fileSelect">
           <option value="" selected>Choose a document</option>
@@ -19,5 +20,6 @@
       </form>
     </div>
     <script src="/utils/extractFormSubmit.js"></script>
+    <%-include("footer")%>
   </body>
 </html>
