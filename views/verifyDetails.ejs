@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/verifyDetails.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <%- include("navbar") %>
+    <div class="verifyDetails">
+      <table border="1" cellpadding="8">
+        <tr>
+          <th>Field</th>
+          <th>OCR Data</th>
+          <th>Filled Data</th>
+          <th>Status</th>
+        </tr>
+
+        <tr>
+          <td>Name</td>
+          <td><%= ocrData.name %></td>
+          <td><%= name %></td>
+          <td><%= ocrData.name === name ? "✔ Match" : "❌ Mismatch" %></td>
+        </tr>
+
+        <tr>
+          <td>Email</td>
+          <td><%= ocrData.email %></td>
+          <td><%= email %></td>
+          <td><%= ocrData.email === email ? "✔ Match" : "❌ Mismatch" %></td>
+        </tr>
+
+        <tr>
+          <td>Father Name</td>
+          <td><%= ocrData.fatherName %></td>
+          <td><%= fatherName %></td>
+          <td>
+            <%= ocrData.fatherName === fatherName ? "✔ Match" : "❌ Mismatch" %>
+          </td>
+        </tr>
+
+        <tr>
+          <td>Address</td>
+          <td><%= ocrData.address %></td>
+          <td><%= address %></td>
+          <td>
+            <%= ocrData.address === address ? "✔ Match" : "❌ Mismatch" %>
+          </td>
+        </tr>
+
+        <tr>
+          <td>DOB</td>
+          <td><%= ocrData.dob %></td>
+          <td><%= dob %></td>
+          <td><%= ocrData.dob == dob ? "✔ Match" : "❌ Mismatch" %></td>
+        </tr>
+
+        <tr>
+          <td>Gender</td>
+          <td><%= ocrData.gender %></td>
+          <td><%= gender %></td>
+          <td><%= ocrData.gender === gender ? "✔ Match" : "❌ Mismatch" %></td>
+        </tr>
+
+        <tr>
+          <td>Mobile</td>
+          <td><%= ocrData.mobile %></td>
+          <td><%= mobile %></td>
+          <td><%= ocrData.mobile === mobile ? "✔ Match" : "❌ Mismatch" %></td>
+        </tr>
+      </table>
+    </div>
+    <%- include("footer") %>
+  </body>
+</html>

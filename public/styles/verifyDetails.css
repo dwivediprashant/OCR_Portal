@@ -1,0 +1,8 @@
+.verifyDetails {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background-color: rgba(255, 192, 203, 0.404);
+  margin-top: 4rem;
+}

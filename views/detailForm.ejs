@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/detailForm.css" />
+    <link rel="stylesheet" href="/styles/index.css" />
+    <title>Detail Form</title>
+  </head>
+  <body>
+    <%-include("navbar") %>
+    <div class="detailForm">
+      <form action="/verifyDetails" method="post">
+        <div>
+          <label for="name">Enter name : </label>
+          <input type="text" id="name" name="name" /> <br />
+        </div>
+        <div>
+          <label for="email">Enter email : </label>
+          <input type="email" id="email" name="email" /><br />
+        </div>
+        <div>
+          <label for="dob">Enter DOB : </label>
+          <input type="date" id="dob" name="dob" /><br />
+        </div>
+        <div>
+          <label for="fatherName">Enter Father name : </label>
+          <input type="text" id="fatherName" name="fatherName" /><br />
+        </div>
+        <div>
+          <label for="address">Enter address : </label>
+          <input type="text" id="address" name="address" /><br />
+        </div>
+        <div>
+          <label for="gender">Enter gender : </label>
+          <input type="text" id="gender" name="gender" /><br />
+        </div>
+        <div>
+          <label for="mobile">Enter mobile no : </label>
+          <input type="tel" id="mobile" name="mobile" /><br />
+        </div>
+        <button>Submit</button>
+      </form>
+    </div>
+    <%-include("footer") %>
+  </body>
+</html>
