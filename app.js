@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const port = 3000;
+const pdf = require("pdf-to-img");
 const session = require("express-session");
 
 //utils-------------------------------------
@@ -59,8 +60,12 @@ app.get("/extractData/:id", async (req, res) => {
 });
 //---------get form to fill details------------------
 app.get("/detailForm", (req, res) => {
-  res.render("detailForm");
+  let ocrData = req.session.ocrData;
+  const normalizeDob = normalizeDOB(ocrData.dob);
+  ocrData = { ...ocrData, dob: normalizeDob };
+  res.render("detailForm", { ocrData });
 });
+
 //---------verify filled details and compare with document(image) extracted details
 app.post("/verifyDetails", (req, res) => {
   let { name, dob, email, gender, mobile, address, fatherName } = req.body;
