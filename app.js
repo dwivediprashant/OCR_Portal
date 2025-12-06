@@ -61,9 +61,16 @@ app.get("/extractData/:id", async (req, res) => {
 //---------get form to fill details------------------
 app.get("/detailForm", (req, res) => {
   let ocrData = req.session.ocrData;
-  const normalizeDob = normalizeDOB(ocrData.dob);
-  ocrData = { ...ocrData, dob: normalizeDob };
-  res.render("detailForm", { ocrData });
+  if (!ocrData) {
+    res.render("error", {
+      message: "Please extract data first",
+      link: "/extractData",
+    });
+  } else {
+    const normalizeDob = normalizeDOB(ocrData.dob);
+    ocrData = { ...ocrData, dob: normalizeDob };
+    res.render("detailForm", { ocrData });
+  }
 });
 
 //---------verify filled details and compare with document(image) extracted details
