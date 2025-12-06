@@ -37,8 +37,10 @@ app.get("/extractData/:id", async (req, res) => {
   const { id } = req.params;
   const filePath = `uploads/documents/${id}`;
   try {
+    const { extractFields } = require("./public/utils/fieldsRequired");
     const text = await extractText(filePath);
-    res.render("showExtractedData", { id, text });
+    const fieldsRequired = extractFields(text);
+    res.render("showExtractedData", { id, text, fieldsRequired });
   } catch (err) {
     res.status(500).send({
       error: err.message,

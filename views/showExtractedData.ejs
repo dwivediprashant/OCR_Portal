@@ -9,9 +9,39 @@
   <body>
     <%-include("navbar")%>
     <div class="extract-data">
-      <p>File name : <span><%= id %></span></p>
-      <p>Data : <span><%= text %></span></p>
+      <h3>File name :</h3>
+      <p><%= id %></p>
+      <h3>File raw text :</h3>
+      <pre><%= text %></pre>
+      <!-- Extracted Specific Fields -->
+      <h3>Extracted Required Fields:</h3>
+      <ul>
+        <li><strong>Name:</strong><span> <%= fieldsRequired.name %></span></li>
+        <li><strong>DOB:</strong> <span><%= fieldsRequired.dob %></span></li>
+        <li>
+          <strong>Email:</strong> <span><%= fieldsRequired.email %></span>
+        </li>
+        <li>
+          <strong>Address:</strong> <span><%= fieldsRequired.address %></span>
+        </li>
+        <li>
+          <strong>ID Number:</strong>
+          <span><%= fieldsRequired.idNumber %></span>
+        </li>
+        <li>
+          <strong>Gender:</strong> <span><%= fieldsRequired.gender %></span>
+        </li>
+        <li>
+          <strong>Father Name:</strong>
+          <span><%= fieldsRequired.fatherName %></span>
+        </li>
+        <li>
+          <strong>Mobile no:</strong>
+          <span><%= fieldsRequired.mobile %></span>
+        </li>
+      </ul>
     </div>
+
     <%-include("footer")%>
   </body>
 </html>
