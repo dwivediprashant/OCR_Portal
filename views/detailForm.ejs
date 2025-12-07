@@ -12,6 +12,16 @@
     <div class="detailForm">
       <form action="/verifyDetails" method="post">
         <div>
+          <label for="idNumber">Enter ID : </label>
+          <input
+            type="text"
+            id="idNumber"
+            name="idNumber"
+            value="<%=ocrData.idNumber%>"
+          />
+          <br />
+        </div>
+        <div>
           <label for="name">Enter name : </label>
           <input type="text" id="name" name="name" value="<%=ocrData.name%>" />
           <br />
