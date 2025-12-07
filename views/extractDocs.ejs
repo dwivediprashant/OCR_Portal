@@ -8,7 +8,7 @@
     <title>All documents</title>
   </head>
   <body>
-    <%- include("navbar") %>
+    <%- include("navbar") %> <%= error %>
     <div class="extract-form">
       <form id="fileForm" method="get">
         <select name="fileName" id="fileSelect">
@@ -18,6 +18,10 @@
           <% } %>
         </select>
         <button>Extract</button>
+        <div>
+          <progress value="0" max="100" id="extractDataProgress"></progress>
+          <span id="extractPercent">0%</span>
+        </div>
       </form>
     </div>
     <script src="/utils/extractFormSubmit.js"></script>

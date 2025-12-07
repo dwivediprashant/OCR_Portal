@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const session = require("express-session");
-
+const flash = require("connect-flash");
 //utils-------------------------------------
 const getUploadedFiles = require("./public/utils/getUploadedFiles");
 const { extractText } = require("./public//utils/tesseract");
@@ -10,6 +10,7 @@ const { extractFields } = require("./public/utils/fieldsRequired");
 const normalizeDOB = require("./public/utils/normalizeDOB");
 const isPdf = require("./public/utils/isPdf");
 const { convertPdf2Img } = require("./public/utils/convertPdf2img");
+//---middlewares
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -19,6 +20,13 @@ app.use(
     saveUninitialized: true,
   })
 );
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 // Set EJS as the view engine
 app.set("view engine", "ejs");
 // Specify the directory where  EJS templates are located
@@ -37,7 +45,8 @@ app.get("/saveForm", (req, res) => {
 //------------store file using multer in uploads/documents directory----------------
 app.post("/saveForm", upload.single("document"), (req, res) => {
   console.log(req.file);
-  res.render("saveForm");
+  req.flash("success", "File saved successfully");
+  res.redirect("/saveForm");
 });
 //------------get page to extract data ------------
 app.get("/extractData", (req, res) => {
@@ -75,10 +84,8 @@ app.get("/extractData/:id", async (req, res) => {
 app.get("/detailForm", (req, res) => {
   let ocrData = req.session.ocrData;
   if (!ocrData) {
-    res.render("error", {
-      message: "Please extract data first",
-      link: "/extractData",
-    });
+    req.flash("error", "Please extract data first");
+    res.redirect("/extractData");
   } else {
     const normalizeDob = normalizeDOB(ocrData.dob);
     ocrData = { ...ocrData, dob: normalizeDob };
