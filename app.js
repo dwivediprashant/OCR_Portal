@@ -1,13 +1,15 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-const pdf = require("pdf-to-img");
 const session = require("express-session");
 
 //utils-------------------------------------
 const getUploadedFiles = require("./public/utils/getUploadedFiles");
 const { extractText } = require("./public//utils/tesseract");
+const { extractFields } = require("./public/utils/fieldsRequired");
 const normalizeDOB = require("./public/utils/normalizeDOB");
+const isPdf = require("./public/utils/isPdf");
+const { convertPdf2Img } = require("./public/utils/convertPdf2img");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -19,7 +21,7 @@ app.use(
 );
 // Set EJS as the view engine
 app.set("view engine", "ejs");
-// Specify the directory where your EJS templates are located
+// Specify the directory where  EJS templates are located
 app.set("views", "./views");
 //--------storage multer middleware-------------------------
 const upload = require("./middlewares/upload");
@@ -47,9 +49,20 @@ app.get("/extractData/:id", async (req, res) => {
   const { id } = req.params;
   const filePath = `uploads/documents/${id}`;
   try {
-    const { extractFields } = require("./public/utils/fieldsRequired");
-    const text = await extractText(filePath);
-    const fieldsRequired = extractFields(text);
+    const pdf = isPdf(filePath);
+
+    let text = "";
+    if (pdf) {
+      const bufferImgs = await convertPdf2Img(filePath);
+      for (img of bufferImgs) {
+        const pageText = await extractText(img);
+        text += "\n" + pageText;
+      }
+    } else {
+      text = await extractText(filePath);
+    }
+
+    const fieldsRequired = extractFields(text); //by regex
     req.session.ocrData = fieldsRequired;
     res.render("showExtractedData", { id, text, fieldsRequired });
   } catch (err) {
