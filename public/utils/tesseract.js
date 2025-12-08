@@ -1,9 +1,9 @@
 const Tesseract = require("tesseract.js");
 const path = require("path");
 
-async function extractText(imagePath) {
+async function extractText(imagePath,lang) {
   try {
-    const { data } = await Tesseract.recognize(imagePath, "eng", {
+    const { data } = await Tesseract.recognize(imagePath, lang, {
       cachePath: path.join(__dirname, "../../.cache"),
       logger: (m) => console.log(m),
     });

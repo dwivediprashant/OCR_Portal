@@ -8,23 +8,36 @@
     <title>All documents</title>
   </head>
   <body>
-    <%- include("navbar") %> <%= error %>
+    <%- include("navbar") %>
+    <%= error || "" %>
+
     <div class="extract-form">
-      <form id="fileForm" method="get">
-        <select name="fileName" id="fileSelect">
+      <form id="fileForm" method="post">
+        <select  id="fileSelect" required>
           <option value="" selected>Choose a document</option>
-          <% for(file of allFiles) {%>
-          <option value="<%=file%>"><%=file%></option>
+          <% for (file of allFiles) { %>
+            <option value="<%= file %>"><%= file %></option>
           <% } %>
         </select>
-        <button>Extract</button>
+
+        <select  id="ocrLangSelect" required>
+          <option value=""  selected>Choose a language</option>
+          <option value="eng">English</option>
+          <option value="hin">Hindi</option>
+        </select>
+
+        <div class="btn">
+          <button type="submit">Extract</button>
+        </div>
+
         <div>
           <progress value="0" max="100" id="extractDataProgress"></progress>
           <span id="extractPercent">0%</span>
         </div>
       </form>
     </div>
+
     <script src="/utils/extractFormSubmit.js"></script>
-    <%-include("footer")%>
+    <%- include("footer") %>
   </body>
 </html>

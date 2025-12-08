@@ -2,6 +2,7 @@ const form = document.getElementById("fileForm");
 const select = document.getElementById("fileSelect");
 const progress = document.getElementById("extractDataProgress");
 const percent = document.getElementById("extractPercent");
+const langSelect = document.getElementById("ocrLangSelect");
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -10,8 +11,13 @@ form.addEventListener("submit", (e) => {
     alert("Please select a document first.");
     return;
   }
+  if (!langSelect.value) {
+    alert("Please select a language first.");
+    return;
+  }
+  console.log("Selected language:", langSelect.value); //debugging line
 
-  // Start smooth fake progress
+  // fake progress for now
   let p = 0;
   const interval = setInterval(() => {
     if (p >= 95) {
@@ -24,6 +30,6 @@ form.addEventListener("submit", (e) => {
   }, 40);
 
   // Submit the form
-  form.action = `/extractData/${encodeURIComponent(select.value)}`;
+  form.action = `/extractData/${encodeURIComponent(select.value)}?lang=${encodeURIComponent(langSelect.value)}`;
   form.submit();
 });
