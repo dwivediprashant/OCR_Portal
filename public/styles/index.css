@@ -6,3 +6,6 @@ button {
   background-color: green;
   color: white;
 }
+.btn{
+  margin: 1rem;
+}

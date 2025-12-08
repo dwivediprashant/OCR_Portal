@@ -54,8 +54,10 @@ app.get("/extractData", (req, res) => {
   res.render("extractDocs", { allFiles });
 });
 //---------------tesseract extract data from saved file such as name, dob, age etc-------------
-app.get("/extractData/:id", async (req, res) => {
+app.post("/extractData/:id", async (req, res) => {
   const { id } = req.params;
+  const {lang="eng"} = req.query ;//english for fallback
+  console.log("Language selected:", lang);
   const filePath = `uploads/documents/${id}`;
   try {
     const pdf = isPdf(filePath);
@@ -64,11 +66,11 @@ app.get("/extractData/:id", async (req, res) => {
     if (pdf) {
       const bufferImgs = await convertPdf2Img(filePath);
       for (img of bufferImgs) {
-        const pageText = await extractText(img);
+        const pageText = await extractText(img,lang);
         text += "\n" + pageText;
       }
     } else {
-      text = await extractText(filePath);
+      text = await extractText(filePath,lang);
     }
 
     const fieldsRequired = extractFields(text); //by regex
