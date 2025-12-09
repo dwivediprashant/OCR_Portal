@@ -1,18 +1,50 @@
-// mobileExtract.js
+// ==================== mobileExtract.js ====================
 
 function extractMobileFromText(text) {
-  if (!text) return null;
+  if (!text || typeof text !== "string") return null;
 
-  // Remove common separators (+91-, +91/, 98765-43210, etc.)
-  const cleaned = text.replace(/[^\d]/g, " "); // turn symbols into spaces
+  // Convert Hindi digits → English digits
+  const hindiDigits = {
+    "०": "0",
+    "१": "1",
+    "२": "2",
+    "३": "3",
+    "४": "4",
+    "५": "5",
+    "६": "6",
+    "७": "7",
+    "८": "8",
+    "९": "9",
+  };
 
-  // Now extract ONLY Indian mobile numbers (10 digits, starting 6–9)
-  const pattern = /\b([6-9]\d{9})\b/;
+  const normalized = text.replace(/[०-९]/g, (d) => hindiDigits[d] || d);
 
-  const match = cleaned.match(pattern);
-  if (!match) return null;
+  const lines = normalized.split(/\r?\n/).map((l) => l.trim());
 
-  return match[1]; // return only pure 10-digit number
+  // Hindi + English mobile labels
+  const labelRegex =
+    /\b(mobile|mobile\s*no|phone|contact|मोबाइल|मोबाइल\s*नंबर|फोन|संपर्क)\b[:\-]?\s*/i;
+
+  // Indian mobile number pattern: 10 digits starting with 6–9
+  const mobilePattern = /\b([6-9]\d{9})\b/;
+
+  // ---------------------------------
+  // 1. Look for mobile under a label
+  // ---------------------------------
+  for (let line of lines) {
+    if (labelRegex.test(line)) {
+      const m = line.match(mobilePattern);
+      if (m) return m[1];
+    }
+  }
+
+  // ---------------------------------
+  // 2. Free-search across the text
+  // ---------------------------------
+  const m = normalized.match(mobilePattern);
+  if (m) return m[1];
+
+  return null;
 }
 
 module.exports = extractMobileFromText;

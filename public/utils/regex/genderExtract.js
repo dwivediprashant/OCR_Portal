@@ -1,35 +1,40 @@
 // genderExtract.js
-// Ultra-strict: return gender only if exact standalone gender word appears in OCR text.
-// Returns: "Male" | "Female" | "Other" | "Transgender" | "Non-binary" | null
+// Returns the SAME language detected from OCR (Hindi or English)
 
 function extractGenderFromText(text) {
   if (!text || typeof text !== "string") return null;
 
-  // normalize NBSP and unify newlines (not strictly necessary)
-  const raw = text.replace(/\u00A0/g, " ").replace(/\r\n/g, "\n");
+  const cleaned = text.replace(/\u00A0/g, " ").replace(/\r\n/g, "\n");
 
-  // tokenize into alpha-only words to avoid substring matches
-  const tokens = raw.split(/[^A-Za-z]+/).filter(Boolean).map(t => t.toLowerCase());
+  const tokens = cleaned
+    .split(/[^A-Za-z\u0900-\u097F]+/)
+    .filter(Boolean)
+    .map((t) => t.toLowerCase());
 
-  for (const t of tokens) {
-    if (t === "male") return "Male";
-    if (t === "female") return "Female";
-    if (t === "other") return "Other";
-    if (t === "transgender" || t === "trans") return "Transgender";
-    if (t === "nonbinary" || t === "non-binary" || t === "non" && false /*placeholder*/ ) {
-      // note: "non binary" is split into ['non','binary'] by tokenizer; we handle that below
+  // ---- Hindi detection (return Hindi directly) ----
+  if (tokens.includes("पुरुष")) return "पुरुष";
+  if (tokens.includes("महिला")) return "महिला";
+  if (tokens.includes("अन्य")) return "अन्य";
+  if (tokens.includes("ट्रांसजेंडर")) return "ट्रांसजेंडर";
+
+  // ---- English detection (return English directly) ----
+  if (tokens.includes("male")) return "Male";
+  if (tokens.includes("female")) return "Female";
+  if (tokens.includes("other")) return "Other";
+  if (tokens.includes("transgender") || tokens.includes("trans"))
+    return "Transgender";
+
+  // non-binary (both forms)
+  if (tokens.includes("nonbinary") || tokens.includes("non-binary"))
+    return "Non-binary";
+
+  for (let i = 0; i < tokens.length - 1; i++) {
+    if (tokens[i] === "non" && tokens[i + 1] === "binary") {
+      return "Non-binary";
     }
   }
 
-  // handle the two-word form "non binary" (tokenizer split it into ["non","binary"])
-  for (let i = 0; i < tokens.length - 1; i++) {
-    if (tokens[i] === "non" && tokens[i + 1] === "binary") return "Non-binary";
-  }
-
-  // Also handle compact "nb"
-  for (const t of tokens) {
-    if (t === "nb") return "Non-binary";
-  }
+  if (tokens.includes("nb")) return "Non-binary";
 
   return null;
 }
