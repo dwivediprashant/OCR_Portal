@@ -6,6 +6,7 @@ const extractFatherNameFromText = require("./regex/fatherExtract");
 const extractEmailFromText = require("./regex/emailExtract");
 const extractAddressFromText = require("./regex/addressExtract");
 const extractMobileFromText = require("./regex/mobileExtract");
+const extractAgeFromText = require("./regex/ageExtract");
 
 // FUNCTION-BASED FIELD EXTRACTORS
 const fieldExtractors = {
@@ -17,13 +18,13 @@ const fieldExtractors = {
   email: extractEmailFromText,
   address: extractAddressFromText,
   mobile: extractMobileFromText,
+  age: extractAgeFromText,
 };
 
 function extractFields(text) {
   const result = {};
 
   for (let key in fieldExtractors) {
-    // Call the corresponding extractor function
     let value = fieldExtractors[key](text);
 
     if (!value) {
@@ -40,7 +41,7 @@ function extractFields(text) {
         if (value.startsWith("91") && value.length > 10) {
           value = value.slice(2);
         }
-        result[key] = value.slice(-10); // last 10 digits as final mobile number
+        result[key] = value.slice(-10);
         break;
 
       case "email":
@@ -57,7 +58,6 @@ function extractFields(text) {
 
       case "dob":
         value = value.replace(/\s+/g, "").replace(/[-.]/g, "/");
-        // Convert dd/mm/yy → dd/mm/20yy (optional)
         if (/^\d{2}\/\d{2}\/\d{2}$/.test(value)) {
           value = value.replace(/\/(\d{2})$/, "/20$1");
         }
@@ -74,6 +74,23 @@ function extractFields(text) {
 
       case "idNumber":
         result[key] = value.replace(/\s+/g, "").toUpperCase().trim();
+        break;
+
+      //  AGE NORMALIZATION BLOCK
+      case "age":
+        let age = value.replace(/[^0-9]/g, "");
+
+        // Convert OCR errors (if any slipped through)
+        if (age === "O") age = "0";
+        if (age === "l" || age === "I") age = "1";
+
+        const ageNum = parseInt(age, 10);
+
+        if (!ageNum || ageNum < 1 || ageNum > 120) {
+          result[key] = null; // invalid age fallback
+        } else {
+          result[key] = ageNum.toString();
+        }
         break;
 
       default:

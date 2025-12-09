@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="/styles/index.css" />
   </head>
   <body>
-    <%- include("navbar") %><%= success %>
+    <%- include("navbar") %> <% if (success && success.length > 0) { %>
+    <div class="flash-message success"><%= success %></div>
+    <% } %>
     <div class="form">
       <form action="/saveForm" method="post" enctype="multipart/form-data">
         <input type="file" name="document" />

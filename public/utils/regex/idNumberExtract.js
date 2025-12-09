@@ -12,32 +12,35 @@ function extractIDNumber(text) {
   // ---------------- Verhoeff (Aadhaar) ----------------
   // tables for Verhoeff algorithm
   const d = [
-    [0,1,2,3,4,5,6,7,8,9],
-    [1,2,3,4,0,6,7,8,9,5],
-    [2,3,4,0,1,7,8,9,5,6],
-    [3,4,0,1,2,8,9,5,6,7],
-    [4,0,1,2,3,9,5,6,7,8],
-    [5,9,8,7,6,0,4,3,2,1],
-    [6,5,9,8,7,1,0,4,3,2],
-    [7,6,5,9,8,2,1,0,4,3],
-    [8,7,6,5,9,3,2,1,0,4],
-    [9,8,7,6,5,4,3,2,1,0]
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+    [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
+    [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+    [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
+    [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+    [6, 5, 9, 8, 7, 1, 0, 4, 3, 2],
+    [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+    [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
+    [9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
   ];
   const p = [
-    [0,1,2,3,4,5,6,7,8,9],
-    [1,5,7,6,2,8,3,0,9,4],
-    [5,8,0,3,7,9,6,1,4,2],
-    [8,9,1,6,0,4,3,5,2,7],
-    [9,4,5,3,1,2,6,8,7,0],
-    [4,2,8,6,5,7,3,9,0,1],
-    [2,7,9,3,8,0,6,4,1,5],
-    [7,0,4,6,9,1,3,2,5,8]
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
+    [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
+    [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
+    [9, 4, 5, 3, 1, 2, 6, 8, 7, 0],
+    [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+    [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
+    [7, 0, 4, 6, 9, 1, 3, 2, 5, 8],
   ];
 
   function verhoeffValidate(numStr) {
     if (!/^\d+$/.test(numStr)) return false;
     let c = 0;
-    const arr = numStr.split('').reverse().map(ch => parseInt(ch, 10));
+    const arr = numStr
+      .split("")
+      .reverse()
+      .map((ch) => parseInt(ch, 10));
     for (let i = 0; i < arr.length; i++) {
       c = d[c][p[i % 8][arr[i]]];
     }
@@ -74,7 +77,9 @@ function extractIDNumber(text) {
 
   // 3) Driving Licence (heuristic)
   // Keep flexible: allow forms with dashes/spaces; normalize before returning
-  const dl = t.match(/\b([A-Z]{2}[- ]?[0-9]{2}[- ]?[0-9]{4}[- ]?[0-9]{6,8}|[A-Z]{2}[0-9A-Z]{6,14})\b/);
+  const dl = t.match(
+    /\b([A-Z]{2}[- ]?[0-9]{2}[- ]?[0-9]{4}[- ]?[0-9]{6,8}|[A-Z]{2}[0-9A-Z]{6,14})\b/
+  );
   if (dl) return dl[1].replace(/[- ]/g, "");
 
   // 4) Voter ID (EPIC) – common pattern 3 letters + 7 digits
@@ -91,7 +96,9 @@ function extractIDNumber(text) {
   if (gst) return gst[1];
 
   // 7) Generic labeled fallback: only return when clearly labeled (e.g., "ID No: XYZ")
-  const generic = t.match(/\b(?:ID|ID\s*NO|ID\s*NUMBER|CARD\s*NO|UNIQUE\s*ID|UID)[:\-\s]*([A-Z0-9][A-Z0-9 \-]{4,40}[A-Z0-9])\b/);
+  const generic = t.match(
+    /\b(?:ID|ID\s*NO|ID\s*NUMBER|CARD\s*NO|UNIQUE\s*ID|UID)[:\-\s]*([A-Z0-9][A-Z0-9 \-]{4,40}[A-Z0-9])\b/
+  );
   if (generic) {
     // normalize spaces/dashes
     return generic[1].replace(/[\s\-]/g, "");

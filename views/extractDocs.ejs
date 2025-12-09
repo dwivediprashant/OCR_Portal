@@ -8,20 +8,21 @@
     <title>All documents</title>
   </head>
   <body>
-    <%- include("navbar") %>
-    <%= error || "" %>
+    <%- include("navbar") %> <% if (error && error.length > 0) { %>
+    <div class="flash-message error"><%= error %></div>
+    <% } %>
 
     <div class="extract-form">
       <form id="fileForm" method="post">
-        <select  id="fileSelect" required>
+        <select id="fileSelect" required>
           <option value="" selected>Choose a document</option>
           <% for (file of allFiles) { %>
-            <option value="<%= file %>"><%= file %></option>
+          <option value="<%= file %>"><%= file %></option>
           <% } %>
         </select>
 
-        <select  id="ocrLangSelect" required>
-          <option value=""  selected>Choose a language</option>
+        <select id="ocrLangSelect" required>
+          <option value="" selected>Choose a language</option>
           <option value="eng">English</option>
           <option value="hin">Hindi</option>
         </select>
