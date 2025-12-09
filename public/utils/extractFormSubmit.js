@@ -30,6 +30,8 @@ form.addEventListener("submit", (e) => {
   }, 40);
 
   // Submit the form
-  form.action = `/extractData/${encodeURIComponent(select.value)}?lang=${encodeURIComponent(langSelect.value)}`;
+  form.action = `/api/extract/${encodeURIComponent(
+    select.value
+  )}?lang=${encodeURIComponent(langSelect.value)}`;
   form.submit();
 });

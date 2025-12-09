@@ -10,7 +10,7 @@
   <body>
     <%-include("navbar") %>
     <div class="detailForm">
-      <form action="/verifyDetails" method="post">
+      <form action="api/verify" method="post">
         <div>
           <label for="idNumber">Enter ID : </label>
           <input
@@ -42,6 +42,15 @@
             id="dob"
             name="dob"
             value="<%=ocrData.dob%>"
+          /><br />
+        </div>
+        <div>
+          <label for="age">Enter age : </label>
+          <input
+            type="number"
+            id="age"
+            name="age"
+            value="<%=ocrData.age%>"
           /><br />
         </div>
         <div>
@@ -80,7 +89,7 @@
             value="<%=ocrData.mobile%>"
           /><br />
         </div>
-        <button>Submit</button>
+        <button>Verify details</button>
       </form>
     </div>
     <%-include("footer") %>

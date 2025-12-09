@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/styles/saveForm.css" />
+    <link rel="stylesheet" href="/styles/index.css" />
+    <title>Upload Document</title>
+  </head>
+  <body>
+    <%- include("navbar") %>
+    <h2>Upload Document</h2>
+    <% if (success && success.length > 0) { %>
+    <div class="flash-message success"><%= success %></div>
+    <% } %>
+    <div class="form">
+      <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="document" required />
+        <button class="btn">Upload</button>
+      </form>
+    </div>
+
+    <%- include("footer") %>
+  </body>
+</html>
