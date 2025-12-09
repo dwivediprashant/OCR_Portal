@@ -17,32 +17,49 @@ function extractMobileFromText(text) {
     "९": "9",
   };
 
-  const normalized = text.replace(/[०-९]/g, (d) => hindiDigits[d] || d);
+  let normalized = text.replace(/[०-९]/g, (d) => hindiDigits[d] || d);
 
   const lines = normalized.split(/\r?\n/).map((l) => l.trim());
 
-  // Hindi + English mobile labels
+  // English + Hindi labels
   const labelRegex =
-    /\b(mobile|mobile\s*no|phone|contact|मोबाइल|मोबाइल\s*नंबर|फोन|संपर्क)\b[:\-]?\s*/i;
+    /\b(mobile|mobile\s*no|phone|contact|फोन|मोबाइल|मोबाइल\s*नंबर|संपर्क)\b[:\-]?\s*/i;
 
-  // Indian mobile number pattern: 10 digits starting with 6–9
-  const mobilePattern = /\b([6-9]\d{9})\b/;
+  // Flexible phone number pattern:
+  // Accepts +91, (), spaces, hyphens → final digits count 5 to 15
+  const phonePattern = /(?:\+?\d[\d\-\s()]{3,20}\d)/g;
+
+  // Normalize number by stripping everything except digits
+  const cleanNumber = (x) => x.replace(/[^\d]/g, "");
+
+  // Validate cleaned number length (avoid false matches)
+  const isValidPhone = (num) => num.length >= 5 && num.length <= 15;
 
   // ---------------------------------
-  // 1. Look for mobile under a label
+  // 1. Look for labelled phone lines
   // ---------------------------------
   for (let line of lines) {
     if (labelRegex.test(line)) {
-      const m = line.match(mobilePattern);
-      if (m) return m[1];
+      const matches = line.match(phonePattern);
+      if (matches) {
+        for (let m of matches) {
+          const cleaned = cleanNumber(m);
+          if (isValidPhone(cleaned)) return cleaned;
+        }
+      }
     }
   }
 
   // ---------------------------------
-  // 2. Free-search across the text
+  // 2. Free search across full text
   // ---------------------------------
-  const m = normalized.match(mobilePattern);
-  if (m) return m[1];
+  const globalMatches = normalized.match(phonePattern);
+  if (globalMatches) {
+    for (let m of globalMatches) {
+      const cleaned = cleanNumber(m);
+      if (isValidPhone(cleaned)) return cleaned;
+    }
+  }
 
   return null;
 }
