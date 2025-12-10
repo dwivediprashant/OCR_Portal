@@ -1,3 +1,10 @@
-node_modules
+# Node modules
+node_modules/
+
+# Tesseract cache
 .cache/
+
+# Uploaded files
 uploads/
+uploads/**
+uploads/documents/

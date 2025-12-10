@@ -13,6 +13,7 @@ const isPdf = require("./public/utils/isPdf");
 const { convertPdf2Img } = require("./public/utils/convertPdf2img");
 const preprocessImg = require("./public/utils/preProcessImg");
 const { computeFieldConfidence } = require("./public/utils/confidence");
+const detectDocType = require("./public/utils/detectDocType");
 
 //---------verification utils-----------------------
 const similarity = require("./public/utils/verification/similarity");
@@ -69,31 +70,57 @@ app.post("/api/extract/:id", async (req, res) => {
   const { id } = req.params;
   const { lang = "eng" } = req.query;
   console.log("Language selected:", lang);
-  const filePath = `uploads/documents/${id}`;
-  try {
-    const pdf = isPdf(filePath);
 
-    let fullText = "";
-    let rawDataPerPage = [];
+  const filePath = `uploads/documents/${id}`;
+
+  try {
+    const pdf = isPdf(filePath); // check pdf file
+
+    // ---------- 1) Build page buffers ----------
+    let pageBuffers = [];
     if (pdf) {
-      const bufferImgs = await convertPdf2Img(filePath);
-      for (const img of bufferImgs) {
-        const processedImg = await preprocessImg(img);
-        const data = await extractText(processedImg, lang);
-        rawDataPerPage.push(data);
-        fullText += "\n" + (data.text || "");
-      }
+      // conversion of pdf to image buffers
+      pageBuffers = await convertPdf2Img(filePath);
     } else {
       const buffer = fs.readFileSync(filePath);
-      const processedBuffer = await preprocessImg(buffer);
-      const data = await extractText(processedBuffer, lang);
-      rawDataPerPage.push(data);
-      fullText += data.text || "";
+      pageBuffers = [buffer];
     }
 
-    const fields = extractFields(fullText);
+    if (!pageBuffers.length) {
+      return res
+        .status(400)
+        .json({ ok: false, error: "No pages found in file" });
+    }
 
-    // Use page-level confidence (always available)
+    // ---------- 2) FIRST LIGHT PASS → detect docType ----------
+    // use only first page, generic preprocess (no docType)
+    const firstPage = pageBuffers[0];
+    const firstProcessed = await preprocessImg(firstPage); // no opts => generic
+    const firstOcr = await extractText(firstProcessed, lang);
+    const firstText = firstOcr.text || "";
+
+    // detect docType from first-page OCR text
+    const docType = detectDocType(firstText, lang);
+    console.log("Detected docType:", docType);
+
+    // ---------- 3) SECOND PASS → real OCR with docType-aware preprocess ----------
+    let fullText = "";
+    let rawDataPerPage = [];
+
+    for (const pageBuf of pageBuffers) {
+      // NOW pass docType into preprocessing
+      const processedImg = await preprocessImg(pageBuf, { docType });
+      const data = await extractText(processedImg, lang);
+
+      rawDataPerPage.push(data);
+      fullText += "\n" + (data.text || "");
+    }
+
+    // ---------- 4) Field extraction (using docType + lang) ----------
+    const fields = extractFields(fullText, lang, docType);
+    console.log("Extracted fields :", fields);
+
+    // ---------- 5) Page-level confidence ----------
     const pageConfidences = rawDataPerPage.map((d) => d.confidence || 0);
     const overallConf = pageConfidences.length
       ? Math.round(
@@ -104,14 +131,12 @@ app.post("/api/extract/:id", async (req, res) => {
     console.log("Page confidences:", pageConfidences);
     console.log("Overall confidence:", overallConf);
 
-    // Assign same confidence to all fields
-    //---------- Per-field confidence scoring ----------
+    // ---------- 6) Per-field confidence using words/TSV ----------
     const out = {};
 
     for (const key of Object.keys(fields)) {
       const val = fields[key];
 
-      // compute real OCR confidence for this field
       const fieldConf = computeFieldConfidence(val, rawDataPerPage);
 
       out[key] = {
@@ -121,16 +146,16 @@ app.post("/api/extract/:id", async (req, res) => {
       };
     }
 
+    // ---------- 7) Save + respond ----------
     req.session.ocrData = fields;
-    res.json({ ok: true, fields: out, rawText: fullText });
+    res.json({ ok: true, docType, fields: out, rawText: fullText });
   } catch (err) {
-    console.log(err);
+    console.error("OCR error:", err);
     res.status(500).send({
       error: err.message,
     });
   }
 });
-
 //---------get form to edit details------------------
 app.get("/detailForm", (req, res) => {
   let ocrData = req.session.ocrData;

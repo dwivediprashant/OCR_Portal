@@ -1,9 +1,7 @@
-// ==================== mobileExtract.js ====================
-
-function extractMobileFromText(text) {
+function extractMobileFromText(text, lang = "eng", docType = "GENERIC") {
   if (!text || typeof text !== "string") return null;
 
-  // Convert Hindi digits → English digits
+  // Hindi digits → English digits
   const hindiDigits = {
     "०": "0",
     "१": "1",
@@ -16,48 +14,52 @@ function extractMobileFromText(text) {
     "८": "8",
     "९": "9",
   };
-
   let normalized = text.replace(/[०-९]/g, (d) => hindiDigits[d] || d);
 
   const lines = normalized.split(/\r?\n/).map((l) => l.trim());
 
-  // English + Hindi labels
   const labelRegex =
-    /\b(mobile|mobile\s*no|phone|contact|फोन|मोबाइल|मोबाइल\s*नंबर|संपर्क)\b[:\-]?\s*/i;
+    /\b(mobile|mobile\s*no|phone|phone\s*number|contact|फोन|मोबाइल|संपर्क)\b/i;
 
-  // Flexible phone number pattern:
-  // Accepts +91, (), spaces, hyphens → final digits count 5 to 15
-  const phonePattern = /(?:\+?\d[\d\-\s()]{3,20}\d)/g;
+  const numberPattern = /(?:\+?\d[\d\s\-()]{4,20}\d)/g;
 
-  // Normalize number by stripping everything except digits
-  const cleanNumber = (x) => x.replace(/[^\d]/g, "");
+  const clean = (x) => x.replace(/[^\d]/g, "");
 
-  // Validate cleaned number length (avoid false matches)
-  const isValidPhone = (num) => num.length >= 5 && num.length <= 15;
+  // STRICT INDIAN VALIDATION (for PAN, AADHAAR, GOV IDs)
+  const isValidIndianMobile = (num) => {
+    if (num.startsWith("91") && num.length > 10) num = num.slice(2);
+    if (num.startsWith("0") && num.length > 10) num = num.slice(1);
+    return /^[6-9][0-9]{9}$/.test(num);
+  };
 
-  // ---------------------------------
-  // 1. Look for labelled phone lines
-  // ---------------------------------
+  // GENERIC VALIDATION (fallback for certificates, letters, forms)
+  const isValidGenericPhone = (num) => num.length >= 5 && num.length <= 15;
+
+  const isValid = (num) => {
+    return docType === "PAN" || docType === "AADHAAR"
+      ? isValidIndianMobile(num) // STRICT
+      : isValidIndianMobile(num) || isValidGenericPhone(num); // FLEXIBLE
+  };
+
+  // 1. Label-based search
   for (let line of lines) {
-    if (labelRegex.test(line)) {
-      const matches = line.match(phonePattern);
-      if (matches) {
-        for (let m of matches) {
-          const cleaned = cleanNumber(m);
-          if (isValidPhone(cleaned)) return cleaned;
-        }
-      }
+    if (!labelRegex.test(line)) continue;
+
+    const matches = line.match(numberPattern);
+    if (!matches) continue;
+
+    for (let m of matches) {
+      const num = clean(m);
+      if (isValid(num)) return num;
     }
   }
 
-  // ---------------------------------
-  // 2. Free search across full text
-  // ---------------------------------
-  const globalMatches = normalized.match(phonePattern);
-  if (globalMatches) {
-    for (let m of globalMatches) {
-      const cleaned = cleanNumber(m);
-      if (isValidPhone(cleaned)) return cleaned;
+  // 2. Full-text fallback
+  const matches = normalized.match(numberPattern);
+  if (matches) {
+    for (let m of matches) {
+      const num = clean(m);
+      if (isValid(num)) return num;
     }
   }
 

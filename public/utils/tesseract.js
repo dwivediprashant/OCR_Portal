@@ -6,6 +6,9 @@ async function extractText(imagePath, lang) {
     const { data } = await Tesseract.recognize(imagePath, lang, {
       cachePath: path.join(__dirname, "../../.cache"),
       logger: (m) => console.log(m),
+      tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
+      tessedit_char_blacklist: "!@#$%^&*()_=+[]{}<>?",
+      preserve_interword_spaces: "1",
     });
 
     console.log("Data keys:", Object.keys(data));
