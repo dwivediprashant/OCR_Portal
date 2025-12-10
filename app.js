@@ -12,6 +12,8 @@ const normalizeDOB = require("./public/utils/normalizeDOB");
 const isPdf = require("./public/utils/isPdf");
 const { convertPdf2Img } = require("./public/utils/convertPdf2img");
 const preprocessImg = require("./public/utils/preProcessImg");
+const { computeFieldConfidence } = require("./public/utils/confidence");
+
 //---------verification utils-----------------------
 const similarity = require("./public/utils/verification/similarity");
 const verifyDOB = require("./public/utils/verification/verifyDOB");
@@ -46,10 +48,6 @@ app.set("views", "./views");
 const upload = require("./middlewares/upload");
 //------------------------------------------
 
-//-------------serve form using : "/" get -----------
-app.get("/", (req, res) => {
-  res.render("home");
-});
 //----------get page to save file-------------
 app.get("/upload", (req, res) => {
   res.render("upload");
@@ -107,12 +105,19 @@ app.post("/api/extract/:id", async (req, res) => {
     console.log("Overall confidence:", overallConf);
 
     // Assign same confidence to all fields
+    //---------- Per-field confidence scoring ----------
     const out = {};
-    for (const k of Object.keys(fields)) {
-      out[k] = {
-        value: fields[k],
-        confidence: overallConf,
-        matched: fields[k] != null,
+
+    for (const key of Object.keys(fields)) {
+      const val = fields[key];
+
+      // compute real OCR confidence for this field
+      const fieldConf = computeFieldConfidence(val, rawDataPerPage);
+
+      out[key] = {
+        value: val,
+        confidence: fieldConf,
+        matched: val != null,
       };
     }
 
@@ -171,6 +176,38 @@ app.post("/api/verify", (req, res) => {
       continue;
     }
     if (key.toLowerCase() === "idnumber") {
+      // EMPTY CASE HANDLING
+      if (!userValue && !ocrValue) {
+        result[key] = {
+          filled: "",
+          ocr: "",
+          matchScore: 1,
+          status: "missing",
+        };
+        continue;
+      }
+
+      if (!userValue && ocrValue) {
+        result[key] = {
+          filled: "",
+          ocr: ocrValue,
+          matchScore: 0,
+          status: "missing_user",
+        };
+        continue;
+      }
+
+      if (userValue && !ocrValue) {
+        result[key] = {
+          filled: userValue,
+          ocr: "",
+          matchScore: 0,
+          status: "missing_ocr",
+        };
+        continue;
+      }
+
+      // IF BOTH HAVE VALUE → USE YOUR VERIFY FUNCTION
       const out = verifyIDNumber(userValue, ocrValue);
       result[key] = {
         filled: userValue,
@@ -180,6 +217,7 @@ app.post("/api/verify", (req, res) => {
       };
       continue;
     }
+
     if (key.toLowerCase() === "name") {
       const out = verifyName(userValue, ocrValue);
       result[key] = out;
@@ -195,6 +233,39 @@ app.post("/api/verify", (req, res) => {
       result[key] = out;
       continue;
     }
+
+    // --- handle empty cases ---
+    if (!userValue && !ocrValue) {
+      result[key] = {
+        filled: userValue,
+        ocr: ocrValue,
+        matchScore: 1,
+        status: "missing",
+      };
+      continue;
+    }
+
+    if (!userValue && ocrValue) {
+      result[key] = {
+        filled: userValue,
+        ocr: ocrValue,
+        matchScore: 0,
+        status: "missing_user",
+      };
+      continue;
+    }
+
+    if (userValue && !ocrValue) {
+      result[key] = {
+        filled: userValue,
+        ocr: ocrValue,
+        matchScore: 0,
+        status: "missing_ocr",
+      };
+      continue;
+    }
+
+    // ---- normal fuzzy matching ----
     const score = similarity(userValue, ocrValue);
 
     let status = "mismatch";

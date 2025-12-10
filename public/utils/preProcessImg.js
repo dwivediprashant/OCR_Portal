@@ -16,8 +16,8 @@ async function preprocessImage(buffer) {
       .normalize() // auto-adjust brightness/contrast
       .sharpen() // improves text edges
       .threshold(150) // binarize (experiment: 140–170)
-      .toBuffer()
-      .gamma();
+      .gamma()
+      .toBuffer();
 
     return processed;
   } catch (error) {
