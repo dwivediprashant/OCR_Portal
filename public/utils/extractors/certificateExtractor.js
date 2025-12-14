@@ -12,7 +12,7 @@ module.exports = function certificateExtractor(text, lang) {
   const name = extractName(cleaned, lang);
 
   return {
-    name: name || null,
+    name: name,
     fatherName: null,
     dob: null,
     gender: null,

@@ -8,7 +8,7 @@ const genericExtractor = require("./extractors/genericExtractor");
 // text = OCR text, lang = "eng"/"hin", docType = "PAN" | "AADHAAR" | "CERTIFICATE" | ...
 function extractFields(text, lang, docType) {
   switch (docType) {
-    case "PAN":
+    case "PANCARD":
       return panExtractor(text, lang);
 
     case "AADHAAR":

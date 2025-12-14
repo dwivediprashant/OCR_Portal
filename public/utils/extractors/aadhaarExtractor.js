@@ -5,11 +5,7 @@ const genericExtractor = require("./genericExtractor");
 const extractName = require("../regex/nameExtract");
 const extractDOB = require("../regex/dobExtract");
 const extractGender = require("../regex/genderExtract");
-const extractFather = require("../regex/fatherExtract");
-const extractEmail = require("../regex/emailExtract");
 const extractAddress = require("../regex/addressExtract");
-const extractMobile = require("../regex/mobileExtract");
-const extractAge = require("../regex/ageExtract");
 
 // Aadhaar strong patterns
 const AADHAAR_REGEX = /\b([0-9OIl]{4}[-\s]?[0-9OIl]{4}[-\s]?[0-9OIl]{4})\b/;
@@ -53,20 +49,14 @@ module.exports = function aadhaarExtractor(text, lang) {
   const result = {
     idNumber: extractAadhaarID(cleaned),
     name: extractName(cleaned, lang),
-    fatherName: extractFather(cleaned, lang),
+    fatherName: null,
     dob: extractDOB(cleaned, lang),
     gender: extractGender(cleaned, lang),
-    email: extractEmail(cleaned, lang),
+    email: null,
     address: extractAddress(cleaned, lang),
-    mobile: extractMobile(cleaned, lang),
-    age: extractAge(cleaned, lang),
+    mobile: null,
+    age: null,
   };
-
-  // fill missing values using generic extractor
-  const fallback = genericExtractor(cleaned, lang);
-  for (const key in result) {
-    if (!result[key]) result[key] = fallback[key];
-  }
 
   return result;
 };

@@ -7,10 +7,6 @@ const extractName = require("../regex/nameExtract");
 const extractDOB = require("../regex/dobExtract");
 const extractGender = require("../regex/genderExtract");
 const extractFather = require("../regex/fatherExtract");
-const extractEmail = require("../regex/emailExtract");
-const extractAddress = require("../regex/addressExtract");
-const extractMobile = require("../regex/mobileExtract");
-const extractAge = require("../regex/ageExtract");
 
 // PAN-specific ID number pattern
 const PAN_REGEX = /\b([A-Z]{5}[0-9]{4}[A-Z])\b/;
@@ -44,18 +40,11 @@ module.exports = function panExtractor(text, lang) {
     dob: extractDOB(cleaned, lang),
     gender: extractGender(cleaned, lang),
     idNumber: extractPANID(cleaned),
-    email: extractEmail(cleaned, lang),
-    address: extractAddress(cleaned, lang),
-    mobile: extractMobile(cleaned, lang),
-    age: extractAge(cleaned, lang),
+    email: null,
+    address: null,
+    mobile: null,
+    age: null,
   };
-
-  // ---- Fallback: Fill missing values using generic extractor ----
-  const fallback = genericExtractor(cleaned, lang);
-
-  for (const key in result) {
-    if (!result[key]) result[key] = fallback[key];
-  }
 
   return result;
 };
