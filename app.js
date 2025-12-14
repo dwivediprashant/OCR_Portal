@@ -48,7 +48,9 @@ app.set("views", "./views");
 //--------storage multer middleware-------------------------
 const upload = require("./middlewares/upload");
 //------------------------------------------
-
+app.get("/", (req, res) => {
+  res.redirect("/upload");
+});
 //----------get page to save file-------------
 app.get("/upload", (req, res) => {
   res.render("upload");
